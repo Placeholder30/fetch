@@ -23,7 +23,7 @@ func main() {
 	flag.StringVar(&data, "d", "", "data to send across.")
 
 	flag.Parse()
-	var formattedHeaders HeaderStruct
+	var formattedHeaders map[string]string
 	if headers != "" {
 		headers, err := parseHeaders(headers)
 		if err != nil {
@@ -36,16 +36,15 @@ func main() {
 
 }
 
-func fetch(method string, url string, headers HeaderStruct, body []byte) {
+func fetch(method string, url string, headers map[string]string, body []byte) {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		fmt.Println("an error occured baby")
 	}
-	req.Header.Set("Connection", "keep-alive")
-	// if headers.populated {
-	// 	//do default headers population here and addon headers
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
 
-	// }
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
@@ -57,6 +56,7 @@ func fetch(method string, url string, headers HeaderStruct, body []byte) {
 		fmt.Printf("Error reading response body: %v\n", err)
 		return
 	}
+
 	fmt.Printf("%s\n", string(responseBody))
 
 }

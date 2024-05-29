@@ -5,23 +5,12 @@ import (
 	"strings"
 )
 
-type HeaderStruct struct {
-	Authorization string
-	CacheControl  string `json:"Cache-Control"`
-	ContentType   string `json:"Content-Type"`
-	Forwarded     string
-	Host          string
-	Origin        string
-	UserAgent     string `json:"User-Agent"`
-	populated     bool
-}
+var headersMap = make(map[string]string)
 
-var approvedHeaders HeaderStruct
-
-func parseHeaders(headers string) (HeaderStruct, error) {
+func parseHeaders(headers string) (map[string]string, error) {
 	splitHeaders := strings.Split(headers, ";")
 	if len(splitHeaders) < 2 {
-		return HeaderStruct{}, errors.New("invalid headers format ")
+		return map[string]string{}, errors.New("invalid headers format ")
 
 	}
 
@@ -32,30 +21,7 @@ func parseHeaders(headers string) (HeaderStruct, error) {
 		}
 		headerKey := strings.TrimSpace(headerSlice[0])
 		headerValue := strings.TrimSpace(headerSlice[1])
-
-		switch headerKey {
-		case "Authorization":
-			approvedHeaders.Authorization = headerValue
-			approvedHeaders.populated = true
-		case "Cache-Control":
-			approvedHeaders.CacheControl = headerValue
-			approvedHeaders.populated = true
-		case "Content-Type":
-			approvedHeaders.ContentType = headerValue
-			approvedHeaders.populated = true
-		case "Forwarded  ":
-			approvedHeaders.Forwarded = headerValue
-			approvedHeaders.populated = true
-		case "Host ":
-			approvedHeaders.Host = headerValue
-			approvedHeaders.populated = true
-		case "Origin":
-			approvedHeaders.Origin = headerValue
-			approvedHeaders.populated = true
-		case "User-Agent ":
-			approvedHeaders.UserAgent = headerValue
-			approvedHeaders.populated = true
-		}
+		headersMap[headerKey] = headerValue
 	}
-	return approvedHeaders, nil
+	return headersMap, nil
 }
