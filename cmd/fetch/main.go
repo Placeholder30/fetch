@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -19,8 +20,8 @@ func main() {
 
 	flag.StringVar(&method, "X", "GET", "HTTP method (e.g., GET, POST, PUT, DELETE)")
 	flag.StringVar(&headers, "H", "", "Headers for the request, separated by semicolons")
-	flag.StringVar(&url, "url", "", "the url to visiit eg:https://google.com")
-	flag.StringVar(&data, "d", "", "data to send across.")
+	flag.StringVar(&url, "url", " ", "the url to visiit eg:https://google.com")
+	flag.StringVar(&data, "d", "", "data to send across")
 
 	flag.Parse()
 	var formattedHeaders map[string]string
@@ -32,12 +33,22 @@ func main() {
 		}
 		formattedHeaders = headers
 	}
-	fetch(method, url, formattedHeaders, nil)
+
+	fetch(method, url, formattedHeaders, []byte(data))
 
 }
 
 func fetch(method string, url string, headers map[string]string, body []byte) {
-	req, err := http.NewRequest(method, url, nil)
+	var bodyData *bytes.Buffer
+
+	if len(body) >= 1 {
+		bodyData = bytes.NewBuffer(body)
+
+	} else {
+		bodyData = nil
+	}
+
+	req, err := http.NewRequest(method, url, bodyData)
 	if err != nil {
 		fmt.Println("an error occured baby")
 	}
